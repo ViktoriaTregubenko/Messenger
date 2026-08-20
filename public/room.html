@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Комната</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+ <!-- МЕНЮ -->
+    <div class="profile-sidebar">
+        <div class="sidebar-header">
+<div class="logo">
+    <img src="/logo.png" alt="Victory" class="logo-img">
+    <span class="logo-text">Victory</span>
+</div>
+        </div>
+
+        <div class="nav-center">
+             <button class="theme-toggle" id="themeToggle">🌓</button>
+                <a href="dashboard.html">Профиль</a>
+                <a href="friends.html">Друзья</a>
+                <a href="rooms.html">Комнаты</a>
+                <a href="messages.html">Личные сообщения</a>
+                <a href="profile.html">Настройки</a>
+                <a href="#" id="logoutBtn">Выйти</a>
+        </div> 
+    </div>
+
+    <div class="main-content" style="max-width:1000px; padding:0.5rem 1rem;">
+    <div class="chat-container">
+        <div class="chat-header">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div class="room-avatar-wrap" style="position: relative; width: 200px; height: 200px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
+    <img id="roomAvatar" src="https://via.placeholder.com/40" alt="avatar комнаты" style="width:100%; height:100%; object-fit:cover;">
+    <button id="changeRoomAvatarBtn" class="avatar-upload-btn" style="width: 24px; height: 24px; font-size: 12px; bottom: 0; right: 0;" title="Изменить аватар комнаты">📷</button>
+    <input type="file" id="roomAvatarInput" accept="image/*" style="display:none;">
+</div>
+                <div>
+                    <h3 id="roomName" style="margin:0;">Загрузка...</h3>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.3rem;">
+                        <span id="roomMembers" style="font-size:0.85rem; color:var(--facebook-gray);"><img src="/fast.png" alt="Дизайн" class="feature-icon"> 0</span>
+                        <button id="manageMembersBtn" class="btn btn-outline" style="padding: 0.2rem 0.8rem; font-size: 0.8rem;">Управление</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Область сообщений -->
+        <div id="messages" class="chat-messages">
+            <div style="text-align:center; padding:2rem; color:var(--facebook-gray);">Загрузка...</div>
+        </div>
+
+<div class="chat-input-area">
+    <button class="chat-file-btn" id="fileBtn">➕</button>
+    <textarea id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
+    <button class="btn btn-primary" id="sendBtn">Отправить</button>
+</div>
+<input type="file" id="fileInput" style="display:none;">
+        <div id="typingIndicator" style="padding:0.3rem 1rem; font-size:0.8rem; color:var(--facebook-gray); font-style:italic;"></div>
+    </div>
+</div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="room.js"></script>
+    <script src="theme.js"></script>
+
+        <!-- Модальное окно управления участниками -->
+<div id="manageMembersModal" class="modal" style="display:none">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><img src="/fast.png" alt="Дизайн" class="feature-icon">Участники комнаты</h3>
+            <span class="close-modal" id="closeManageMembers">&times;</span>
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <input type="text" id="addMemberSearch" placeholder="Поиск пользователей для добавления..." style="width:100%; padding:0.5rem; border-radius:50px; border:1px solid var(--pink);">
+            <div id="addMemberResults" style="margin-top:0.5rem; max-height:150px; overflow-y:auto;"></div>
+        </div>
+        <div id="membersList" style="max-height: 50vh; overflow-y: auto;">
+            <div style="text-align:center; padding:1rem; color: var(--text-light);">Загрузка...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования сообщения -->
+<div id="editMessageModal" class="modal" style="display:none">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Редактировать сообщение</h3>
+            <span class="close-modal" id="closeEditModal">&times;</span>
+        </div>
+        <div class="form-group">
+            <textarea id="editMessageInput" rows="3" style="width:100%; padding:0.8rem; border-radius:12px; border:2px solid var(--pink); background: rgba(255,255,255,0.7); font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
+            <button id="saveEditBtn" class="btn btn-primary" style="flex:1;">Сохранить</button>
+            <button id="cancelEditBtn" class="btn btn-outline" style="flex:1;">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения -->
+<div id="confirmModal" class="modal" style="display:none">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="confirmTitle">⚠️ Подтверждение</h3>
+            <span class="close-modal" id="closeConfirmModal">&times;</span>
+        </div>
+        <p id="confirmMessage" style="margin: 1rem 0; font-size: 1.1rem;">Вы уверены?</p>
+        <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem;">
+            <button id="confirmYesBtn" class="btn btn-danger" style="flex:1;">✅ Да</button>
+            <button id="confirmNoBtn" class="btn btn-outline" style="flex:1;">❌ Нет</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="notifications.js"></script>
+</body>
+</html>

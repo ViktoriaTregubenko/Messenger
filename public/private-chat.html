@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный чат - Victory</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+ <!-- МЕНЮ -->
+    <div class="profile-sidebar">
+        <div class="sidebar-header">
+<div class="logo">
+    <img src="/logo.png" alt="Victory" class="logo-img">
+    <span class="logo-text">Victory</span>
+</div>
+        </div>
+
+        <div class="nav-center">
+             <button class="theme-toggle" id="themeToggle">🌓</button>
+                <a href="dashboard.html">Профиль</a>
+                <a href="friends.html">Друзья</a>
+                <a href="rooms.html">Комнаты</a>
+                <a href="messages.html">Личные сообщения</a>
+                <a href="profile.html">Настройки</a>
+                <a href="#" id="logoutBtn">Выйти</a>
+        </div> 
+    </div>
+
+
+        
+        <div class="chat-container">
+            <div class="chat-header" style="padding: 1rem; border-bottom: 1px solid var(--border);">
+                <h3 id="userName">Загрузка...</h3>
+                <span id="userStatus" style="font-size: 12px;"></span>
+            </div>
+            
+            <div id="messages" class="chat-messages">
+                <div style="text-align: center; padding: 2rem;">Загрузка сообщений...</div>
+            </div>
+            
+<div class="chat-input">
+    <button class="chat-file-btn" id="fileBtn">➕</button>
+    <textarea id="messageInput" placeholder="Введите сообщение..." rows="2"></textarea>
+    <button id="sendBtn" class="send-btn">Отправить</button>
+</div>
+<input type="file" id="fileInput" style="display:none;">
+            <div id="typingIndicator" class="typing-indicator"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования сообщения -->
+<div id="editMessageModal" class="modal" style="display:none">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>✏️ Редактировать сообщение</h3>
+            <span class="close-modal" id="closeEditModal">&times;</span>
+        </div>
+        <div class="form-group">
+            <textarea id="editMessageInput" rows="3" style="width:100%; padding:0.8rem; border-radius:12px; border:2px solid var(--pink); background: rgba(255,255,255,0.7); font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
+            <button id="saveEditBtn" class="btn btn-primary" style="flex:1;">Сохранить</button>
+            <button id="cancelEditBtn" class="btn btn-outline" style="flex:1;">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения -->
+<div id="confirmModal" class="modal" style="display:none">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="confirmTitle">⚠️ Подтверждение</h3>
+            <span class="close-modal" id="closeConfirmModal">&times;</span>
+        </div>
+        <p id="confirmMessage" style="margin: 1rem 0; font-size: 1.1rem;">Вы уверены?</p>
+        <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem;">
+            <button id="confirmYesBtn" class="btn btn-danger" style="flex:1;">✅ Да</button>
+            <button id="confirmNoBtn" class="btn btn-outline" style="flex:1;">❌ Нет</button>
+        </div>
+    </div>
+</div>
+
+    <script src="notifications.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="private-chat.js"></script>
+    <script src="theme.js"></script>
+</body>
+</html>
