@@ -1,5 +1,7 @@
-// API URL (для локальной разработки)
-const API_URL = 'http://localhost:3000/api';
+// API URL (автоматически определяет окружение)
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:3000/api' 
+    : '/api';
 
 // Функция показа ошибок
 function showError(message) {
