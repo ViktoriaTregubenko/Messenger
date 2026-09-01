@@ -1,4 +1,5 @@
 let notificationSocket = null;
+let roomNameCache = {};
 
 function initNotificationSocket() {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -8,44 +9,107 @@ function initNotificationSocket() {
 
     notificationSocket = io({ auth: { token } });
 
+    // ----- ЛИЧНЫЕ СООБЩЕНИЯ -----
     notificationSocket.on('private_message_encrypted', async (message) => {
         showMessageNotification(message);
     });
 
-    notificationSocket.on('connect', () => {
-        console.log(' Уведомления подключены');
+    // ----- ЗАЯВКИ В ДРУЗЬЯ -----
+    notificationSocket.on('friend_request_received', (data) => {
+        const senderName = data.username || 'Пользователь';
+        showToastNotification(
+            `Заявка в друзья`,
+            `Пользователь @${senderName} хочет добавить Вас в друзья`,
+            'info',
+            () => {
+                window.location.href = 'friends.html';
+            }
+        );
     });
 
-    notificationSocket.on('connect_error', (err) => {
-        console.error(' Ошибка подключения уведомлений:', err.message);
+    // ----- ДОБАВЛЕНИЕ В КОМНАТУ -----
+    notificationSocket.on('member_added', async (data) => {
+        if (!data.room_id) return;
+
+        const currentUserId = getCurrentUserId();
+        if (data.user.id === currentUserId) return;
+        if (isRoomOpen(data.room_id)) return;
+
+        const userName = data.user.full_name || data.user.username || 'Пользователь';
+        const roomName = await getRoomName(data.room_id);
+
+        showToastNotification(
+            `Добавлен в комнату`,
+            `${userName} добавил(а) вас в комнату «${roomName}»`,
+            'info',
+            () => {
+                window.location.href = `room.html?id=${data.room_id}`;
+            }
+        );
     });
 
-    notificationSocket.on('disconnect', () => {
-        console.log(' Уведомления отключены');
+    // ----- НОВЫЕ СООБЩЕНИЯ В КОМНАТАХ -----
+    notificationSocket.on('new_message', async (message) => {
+        if (!message.to_room_id) return;
+
+        const currentUserId = getCurrentUserId();
+        if (message.from_user_id === currentUserId) return;
+        if (isRoomOpen(message.to_room_id)) return;
+
+        const senderName = message.full_name || message.username || 'Пользователь';
+        const roomName = await getRoomName(message.to_room_id);
+
+        let preview = message.message || 'Новое сообщение';
+        if (preview.length > 40) preview = preview.substring(0, 40) + '...';
+
+        showToastNotification(
+            `Новое сообщение в «${roomName}»`,
+            `${senderName}: ${preview}`,
+            'info',
+            () => {
+                window.location.href = `room.html?id=${message.to_room_id}`;
+            }
+        );
     });
+
+    // ----- СТАТУСЫ ПОДКЛЮЧЕНИЯ -----
+    notificationSocket.on('connect', async () => {
+        try {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const res = await fetch('/api/rooms', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const rooms = await res.json();
+                rooms.forEach(room => {
+                    notificationSocket.emit('join_room', { room_id: room.id });
+                });
+            }
+        } catch (e) {}
+    });
+
+    notificationSocket.on('connect_error', (err) => {});
+    notificationSocket.on('disconnect', () => {});
 }
 
-function showMessageNotification(message) {
-    // Проверяем, что это личное сообщение
-    if (!message.to_user_id) return;
-    const currentUserId = getCurrentUserId();
-    if (message.from_user_id === currentUserId) return;
-    if (isChatWithUserOpen(message.from_user_id)) return;
+// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
 
-    const senderName = message.full_name || message.username || 'Пользователь';
+async function getRoomName(roomId) {
+    if (roomNameCache[roomId]) return roomNameCache[roomId];
 
-    // Показываем уведомление
-    showToastNotification(
-        `Новое сообщение от ${senderName}`,
-        'Нажмите, чтобы открыть чат',
-        'info',
-        () => {
-            window.location.href = `private-chat.html?userId=${message.from_user_id}`;
-        }
-    );
+    try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const res = await fetch(`/api/rooms/${roomId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Ошибка загрузки комнаты');
+        const room = await res.json();
+        roomNameCache[roomId] = room.name || 'Комната';
+        return roomNameCache[roomId];
+    } catch (e) {
+        return 'Комната';
+    }
 }
-
-//ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ 
 
 function getCurrentUserId() {
     try {
@@ -57,7 +121,6 @@ function getCurrentUserId() {
             const user = JSON.parse(userData);
             return user.id;
         }
-        // Пробуем извлечь из токена
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (token) {
             try {
@@ -71,15 +134,69 @@ function getCurrentUserId() {
     }
 }
 
+function isRoomOpen(roomId) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomIdParam = urlParams.get('id');
+    return roomIdParam && parseInt(roomIdParam) === parseInt(roomId);
+}
+
 function isChatWithUserOpen(userId) {
     const urlParams = new URLSearchParams(window.location.search);
     const chatUserId = urlParams.get('userId');
     return chatUserId && parseInt(chatUserId) === parseInt(userId);
 }
 
-//ТОСТ-УВЕДОМЛЕНИЕ
+// ===== ПОКАЗ УВЕДОМЛЕНИЯ О ЛИЧНОМ СООБЩЕНИИ =====
+function showMessageNotification(message) {
+    if (!message.to_user_id) return;
 
+    const currentUserId = getCurrentUserId();
+    if (message.from_user_id === currentUserId) return;
+    if (isChatWithUserOpen(message.from_user_id)) return;
+
+    const senderName = message.full_name || message.username || 'Пользователь';
+
+    showToastNotification(
+        `Новое сообщение от ${senderName}`,
+        'Нажмите, чтобы открыть чат',
+        'info',
+        () => {
+            window.location.href = `private-chat.html?userId=${message.from_user_id}`;
+        }
+    );
+}
+
+// ===== ЗВУК ДЛЯ УВЕДОМЛЕНИЯ =====
+function playBirdSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [
+            { freq: 800, time: 0, dur: 0.1 },
+            { freq: 1200, time: 0.08, dur: 0.08 },
+            { freq: 600, time: 0.15, dur: 0.1 },
+            { freq: 1400, time: 0.22, dur: 0.06 },
+            { freq: 1000, time: 0.28, dur: 0.08 },
+            { freq: 500, time: 0.35, dur: 0.12 }
+        ];
+        notes.forEach(note => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(note.freq, audioContext.currentTime + note.time);
+            gain.gain.setValueAtTime(0.1, audioContext.currentTime + note.time);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + note.time + note.dur);
+            osc.start(audioContext.currentTime + note.time);
+            osc.stop(audioContext.currentTime + note.time + note.dur);
+        });
+    } catch (e) {}
+}
+
+// ===== ТОСТ-УВЕДОМЛЕНИЕ =====
 function showToastNotification(title, message, type = 'info', onClick = null) {
+    playBirdSound();
+
     const existing = document.querySelectorAll('.toast-notification');
     if (existing.length >= 5) {
         existing[0].remove();
@@ -175,7 +292,7 @@ function closeToast(toast) {
     }, 400);
 }
 
-// СТИЛИ АНИМАЦИИ 
+// ===== СТИЛИ АНИМАЦИИ =====
 const toastStyles = document.createElement('style');
 toastStyles.textContent = `
     @keyframes slideInRight {
@@ -202,7 +319,7 @@ toastStyles.textContent = `
 `;
 document.head.appendChild(toastStyles);
 
-//ЗАПУСК 
+// ===== ЗАПУСК =====
 document.addEventListener('DOMContentLoaded', () => {
     initNotificationSocket();
 });

@@ -95,9 +95,6 @@ async function loadDashboard() {
         });
 
         socket = io({ auth: { token } });
-        socket.on('friend_request_received', (data) => {
-            showNotification(` Новая заявка в друзья от @${data.username}`, 'info');
-        });
 
     } catch {
         const container = document.querySelector('.dashboard-container');

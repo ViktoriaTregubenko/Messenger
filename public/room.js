@@ -338,14 +338,17 @@ function sendMessage() {
         return;
     }
 
+    // ГЕНЕРАЦИЯ ЛОКАЛЬНОГО ID
+    const localId = 'local_' + Date.now();
+
     socket.emit('send_message', {
-    localId: localId,
-    to_room_id: parseInt(roomId),
-    message: message || '',
-    file_url: currentFile?.url || null,
-    file_type: currentFile?.type || null,
-    file_name: currentFile?.name || null
-});
+        localId: localId,
+        to_room_id: parseInt(roomId),
+        message: message || '',
+        file_url: currentFile?.url || null,
+        file_type: currentFile?.type || null,
+        file_name: currentFile?.name || null
+    });
 
     input.value = '';
     currentFile = null;
@@ -585,7 +588,6 @@ window.addMemberToRoom = async function(username) {
             body: JSON.stringify({ username_or_email: username })
         });
         if (res.ok) {
-            showNotification(' Участник добавлен', 'success');
             document.getElementById('addMemberSearch').value = '';
             document.getElementById('addMemberResults').innerHTML = '';
             await loadRoomMembers(roomId);
@@ -678,7 +680,6 @@ window.removeMemberFromRoom = async function(userId) {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
-                showNotification(' Участник удалён', 'success');
                 await loadRoomMembers(roomId);
                 renderMembersList();
             } else {
@@ -698,7 +699,6 @@ window.setAdmin = async function(userId) {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
-            showNotification(' Администратор назначен', 'success');
             await loadRoomMembers(roomId);
             renderMembersList();
         } else {
@@ -718,7 +718,6 @@ window.removeAdmin = async function(userId) {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
-                showNotification(' Администратор понижен', 'success');
                 await loadRoomMembers(roomId);
                 renderMembersList();
             } else {

@@ -342,7 +342,6 @@ async function handleAvatarUpload(e) {
         return;
     }
     try {
-        showNotification('🔄 Оптимизация изображения...', 'info');
         const optimizedImage = await optimizeImage(file);
         const res = await fetch('/api/profile', {
             method: 'PUT',
@@ -353,7 +352,7 @@ async function handleAvatarUpload(e) {
             body: JSON.stringify({ avatar: optimizedImage })
         });
         if (res.ok) {
-            showNotification('✅ Аватар обновлён!', 'success');
+            showNotification('Аватар обновлён!', 'success');
             document.getElementById('profileAvatar').src = optimizedImage;
             localStorage.setItem('user_avatar', optimizedImage);
             currentUser.avatar = optimizedImage;
@@ -438,7 +437,7 @@ async function loadRooms() {
         }
         container.innerHTML = rooms.map(room => `
             <div class="room-card">
-                <div class="room-icon">🏠</div>
+                <div class="room-icon"></div>
                 <div class="room-info">
                     <div class="room-name">${escapeHtml(room.name)}</div>
                     <div class="room-description">${escapeHtml(room.description || 'Нет описания')}</div>
@@ -551,16 +550,10 @@ function initSocket() {
         }
         loadChats();
         if (message.from_user_id !== currentUser?.id) {
-            showNotification(`💬 Новое сообщение`, 'info');
+            showNotification(`Новое сообщение`, 'info');
         }
     });
-    socket.on('friend_request_received', (data) => {
-        showNotification(`📨 Новая заявка в друзья от @${data.username}`, 'info');
-        const badge = document.getElementById('friendsBadge');
-        if (badge) {
-            badge.textContent = (parseInt(badge.textContent) || 0) + 1;
-        }
-    });
+    
     socket.on('user_status', ({ userId, status }) => {
         updateFriendStatus(userId, status);
     });
@@ -569,7 +562,7 @@ function initSocket() {
 // ОТКРЫТЬ ЧАТ
 window.openChatWithUser = async function(userId, username) {
     currentChatUserId = userId;
-    document.getElementById('chatModalTitle').textContent = `💬 Чат с ${escapeHtml(username)}`;
+    document.getElementById('chatModalTitle').textContent = `Чат с ${escapeHtml(username)}`;
     document.getElementById('chatModal').style.display = 'flex';
     const container = document.getElementById('chatModalMessages');
     container.innerHTML = '<div class="loading">Загрузка сообщений...</div>';
@@ -600,7 +593,7 @@ function appendChatMessage(message) {
     const fullTime = `${date} ${time}`;
     let displayText = escapeHtml(message.message);
     if (message.is_encrypted) {
-        displayText = '🔒 Зашифрованное сообщение';
+        displayText = 'Зашифрованное сообщение';
     }
     messageDiv.innerHTML = `
         <div class="chat-message-bubble">

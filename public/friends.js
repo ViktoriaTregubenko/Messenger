@@ -178,7 +178,7 @@ window.removeFriend = async function(userId) {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
-                showNotification('✅ Друг удалён', 'success');
+                showNotification('Друг удалён', 'success');
                 await loadFriends();
                 document.getElementById('globalSearchInput').dispatchEvent(new Event('input'));
             } else {
@@ -305,7 +305,7 @@ window.rejectRequest = async (friendId) => {
         if (res.ok) {
             document.getElementById('requestsModal').style.display = 'none';
             await loadFriends();
-            showNotification('✅ Заявка отклонена', 'success');
+            showNotification('Заявка отклонена', 'success');
         } else {
             showNotification('Ошибка отклонения заявки', 'error');
         }

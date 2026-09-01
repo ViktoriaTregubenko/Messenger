@@ -1,71 +1,57 @@
-const sql = require('mssql');
+const { Pool } = require('pg');
 
-const config = {
-    server: 'KIANA\\SQLEXPRESS01',
-    port: 1434,
-    database: 'Messenger_Victoria',
-    user: 'MessengerApp',
-    password: 'StrongPassword123!',
-    options: {
-        trustServerCertificate: true,
-        encrypt: true,
-        enableArithAbort: true,
-        connectionTimeout: 30000,
-        requestTimeout: 30000
+const pool = new Pool({
+    host: process.env.PGHOST || 'localhost',
+    port: process.env.PGPORT || 5432,
+    database: process.env.PGDATABASE || 'messenger_victoria',
+    user: process.env.PGUSER || 'postgres',
+    password: process.env.PGPASSWORD || 'Parol123',
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+});
+
+pool.on('connect', () => {
+    console.log('Подключено к PostgreSQL');
+});
+
+pool.on('error', (err) => {
+    console.error('Ошибка PostgreSQL:', err);
+});
+
+// Функция для выполнения запроса с параметрами (массив)
+async function query(sqlString, params = []) {
+    const client = await pool.connect();
+    try {
+        const result = await client.query(sqlString, params);
+        return result;
+    } catch (err) {
+        throw err;
+    } finally {
+        client.release();
     }
-};
+}
 
-let pool = null;
+async function getOne(sqlString, params = []) {
+    const result = await query(sqlString, params);
+    return result.rows[0];
+}
+
+async function getMany(sqlString, params = []) {
+    const result = await query(sqlString, params);
+    return result.rows;
+}
+
+async function execute(sqlString, params = []) {
+    const result = await query(sqlString, params);
+    return { rowsAffected: result.rowCount };
+}
+
+async function insertAndGetId(sqlString, params = []) {
+    const result = await query(sqlString, params);
+    return result.rows[0].id;
+}
 
 async function getPool() {
-    try {
-        if (!pool) {
-            pool = await sql.connect(config);
-        }
-        return pool;
-    } catch (err) {
-        console.error(' Ошибка подключения к базе данных:', err.message);
-        throw err;
-    }
-}
-
-async function query(sqlString, params = {}) {
-    const pool = await getPool();
-    const request = pool.request();
-    Object.keys(params).forEach(key => {
-        request.input(key, params[key]);
-    });
-    return await request.query(sqlString);
-}
-
-async function getOne(sqlString, params = {}) {
-    const result = await query(sqlString, params);
-    return result.recordset[0];
-}
-
-async function getMany(sqlString, params = {}) {
-    const result = await query(sqlString, params);
-    return result.recordset;
-}
-
-async function execute(sqlString, params = {}) {
-    const result = await query(sqlString, params);
-    return { rowsAffected: result.rowsAffected ? result.rowsAffected[0] : 0 };
-}
-
-async function insertAndGetId(sqlString, params = {}) {
-    const result = await query(sqlString + '; SELECT SCOPE_IDENTITY() AS id;', params);
-    return result.recordset[0].id;
-}
-
-async function testConnection() {
-    try {
-        const pool = await getPool();
-        await pool.request().query('SELECT 1');
-        return true;
-    } catch (err) {
-        return false;
-    }
+    return pool;
 }
 
 module.exports = {
@@ -75,6 +61,5 @@ module.exports = {
     getMany,
     execute,
     insertAndGetId,
-    testConnection,
-    sql
+    sql: null
 };

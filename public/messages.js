@@ -277,7 +277,7 @@ document.getElementById('messagesSearchInput')?.addEventListener('input', functi
         const totalMatches = countTotalMatches(searchRegex);
         hint.textContent = `Найдено чатов/совпадений: ${totalMatches}. Запрос: «${searchText}»`;
     } else {
-        hint.textContent = 'Введите текст или регулярное выражение. Поиск ведётся по содержимому сообщений и именам собеседников.';
+        hint.textContent = 'Введите текст. Поиск ведётся по содержимому сообщений и именам собеседников.';
     }
     renderChats();
 });
