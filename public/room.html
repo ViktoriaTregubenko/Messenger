@@ -30,18 +30,19 @@
 
     <div class="main-content" style="max-width:1000px; padding:0.5rem 1rem;">
     <div class="chat-container">
-        <div class="chat-header">
-<div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-    <div class="room-avatar-wrap" style="position: relative; width: 200px; height: 200px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-        <img id="roomAvatar" src="https://via.placeholder.com/40" alt="avatar комнаты" style="width:100%; height:100%; object-fit:cover;">
-        <button id="changeRoomAvatarBtn" class="avatar-upload-btn" style="width: 24px; height: 24px; font-size: 12px; bottom: 0; right: 0;" title="Изменить аватар комнаты">📷</button>
-        <input type="file" id="roomAvatarInput" accept="image/*" style="display:none;">
+<div class="chat-header" style="display: flex; align-items: center; gap: 2rem; padding: 1rem; border-bottom: 1px solid var(--border);">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+        <div class="room-avatar-wrap" style="position: relative; width: 200px; height: 200px; border-radius: 50%; overflow: hidden;">
+            <img id="roomAvatar" src="https://via.placeholder.com/40" alt="avatar комнаты" style="width:100%; height:100%; object-fit:cover;">
+            <button id="changeRoomAvatarBtn" class="avatar-upload-btn" style="position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--pink); border: none; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">📷</button>
+            <input type="file" id="roomAvatarInput" accept="image/*" style="display:none;">
+        </div>
+        <button id="changeRoomAvatarTextBtn" class="change-avatar-btn" style="margin-top: 0.5rem;">Изменить фото</button>
     </div>
-    <button id="changeRoomAvatarTextBtn" class="change-avatar-btn" style="margin-top: 0.5rem;">Изменить фото</button>
-</div>
-                <div>
-                    <h3 id="roomName" style="margin:0;">Загрузка...</h3>
-                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.3rem;">
+
+    <div style="flex: 1; min-width: 0;">
+        <h3 id="roomName" style="margin: 0 0 0.3rem 0; font-size: 1.5rem;">Загрузка...</h3>
+        <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
                         <span id="roomMembers" style="font-size:0.85rem; color:var(--facebook-gray);"><img src="/fast.png" alt="Дизайн" class="feature-icon"> 0</span>
                         <button id="manageMembersBtn" class="btn btn-outline" style="padding: 0.2rem 0.8rem; font-size: 0.8rem;">Управление</button>
                     </div>
