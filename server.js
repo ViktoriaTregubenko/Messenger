@@ -1,10 +1,3 @@
-/// ================================================================
-//                     СЕРВЕР МЕССЕНДЖЕРА VICTORY (PostgreSQL)
-// ================================================================
-//  Технологии: Node.js + Express + Socket.IO + PostgreSQL
-//  Безопасность: JWT, bcrypt, шифрование (RSA/AES), Helmet, Rate Limiting
-// ================================================================
-
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -23,14 +16,8 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const runMigrations = require('./migrate');
 
-
 // 1. СОЗДАНИЕ ПРИЛОЖЕНИЯ И HTTP-СЕРВЕРА
 const app = express();
-runMigrations().then(() => {
-    server.listen(PORT, '0.0.0.0', () => {
-        console.log(`Сервер запущен на порту ${PORT}`);
-    });
-});
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }
@@ -43,7 +30,7 @@ app.use(express.json({ limit: '10mb' }));
 
 if (process.env.NODE_ENV !== 'production') {
     app.use((req, res, next) => {
-        console.log(` ${req.method} ${req.url}`);
+        console.log(`📨 ${req.method} ${req.url}`);
         next();
     });
 }
@@ -62,6 +49,11 @@ const generalLimiter = rateLimit({
 });
 app.use('/api/', generalLimiter);
 
+// Health check (для ONREZA)
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // 3. АУТЕНТИФИКАЦИЯ (JWT)
 const JWT_SECRET = process.env.JWT_SECRET || 'Admin123';
 const JWT_EXPIRES_IN = '7d';
@@ -71,7 +63,7 @@ const onlineUsers = new Map();
 const ALGORITHM = 'aes-256-gcm';
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
 if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
-    console.error(' ENCRYPTION_KEY must be a 64-character hex string (32 bytes)');
+    console.error('❌ ENCRYPTION_KEY must be a 64-character hex string (32 bytes)');
     process.exit(1);
 }
 const KEY = Buffer.from(ENCRYPTION_KEY, 'hex');
@@ -1250,10 +1242,11 @@ io.on('connection', (socket) => {
     });
 });
 
-// 8. СТАТИЧЕСКИЕ ФАЙЛЫ И ЗАПУСК
+// 8. СТАТИЧЕСКИЕ ФАЙЛЫ
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static('public'));
 
+// 9. ЗАПУСК СЕРВЕРА
 const PORT = process.env.PORT || 3000;
 
 function killPort(port) {
@@ -1279,8 +1272,10 @@ function killPort(port) {
 async function startServer() {
     try {
         await killPort(PORT);
-        server.listen(PORT, () => {
-            console.log(` Сервер запущен на http://localhost:${PORT}`);
+        // Выполняем миграции перед запуском
+        await runMigrations();
+        server.listen(PORT, '0.0.0.0', () => {
+            console.log(`✅ Сервер запущен на порту ${PORT}`);
         });
     } catch (error) {
         console.error('Ошибка при запуске сервера:', error);
