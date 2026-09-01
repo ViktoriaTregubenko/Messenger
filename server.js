@@ -18,7 +18,7 @@ const fs = require('fs');
 const multer = require('multer');
 const crypto = require('crypto');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+//const rateLimit = require('express-rate-limit');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
@@ -42,7 +42,7 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-const authLimiter = rateLimit({
+/* const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 20,
     message: 'Слишком много запросов, попробуйте позже'
@@ -55,6 +55,7 @@ const generalLimiter = rateLimit({
     max: 100
 });
 app.use('/api/', generalLimiter);
+*/
 
 // 3. АУТЕНТИФИКАЦИЯ (JWT)
 const JWT_SECRET = process.env.JWT_SECRET || 'Admin123';
