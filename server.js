@@ -897,17 +897,19 @@ app.post('/api/reactions/batch', authenticateToken, async (req, res) => {
 app.post('/api/keys/public', authenticateToken, async (req, res) => {
     try {
         const { public_key } = req.body;
-        // Проверяем, есть ли уже ключ
+        // Проверяем, есть ли уже запись для этого пользователя
         const existing = await db.getOne(
             'SELECT id FROM user_keys WHERE user_id = $1',
             [req.user.id]
         );
         if (existing) {
+            // Обновляем существующий ключ
             await db.execute(
                 'UPDATE user_keys SET public_key = $1, key_created_at = NOW() WHERE user_id = $2',
                 [public_key, req.user.id]
             );
         } else {
+            // Создаём новую запись
             await db.execute(
                 'INSERT INTO user_keys (user_id, public_key) VALUES ($1, $2)',
                 [req.user.id, public_key]
@@ -915,7 +917,21 @@ app.post('/api/keys/public', authenticateToken, async (req, res) => {
         }
         res.json({ message: 'Публичный ключ сохранён' });
     } catch (error) {
-        console.error(error);
+        console.error('Ошибка сохранения ключа:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/keys/public/:userId', authenticateToken, async (req, res) => {
+    try {
+        const key = await db.getOne(
+            'SELECT public_key FROM user_keys WHERE user_id = $1',
+            [req.params.userId]
+        );
+        if (!key) return res.status(404).json({ error: 'Публичный ключ не найден' });
+        res.json({ public_key: key.public_key });
+    } catch (error) {
+        console.error('Ошибка получения ключа:', error);
         res.status(500).json({ error: error.message });
     }
 });
