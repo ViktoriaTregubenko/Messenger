@@ -27,6 +27,14 @@ function initNotificationSocket() {
         );
     });
 
+    notificationSocket.on('friend_request_received', (data) => {
+    const badge = document.getElementById('requestsCount');
+    if (badge) {
+        let count = parseInt(badge.textContent) || 0;
+        badge.textContent = count + 1;
+    }
+});
+
     // ----- ДОБАВЛЕНИЕ В КОМНАТУ -----
     notificationSocket.on('member_added', async (data) => {
         if (!data.room_id) return;

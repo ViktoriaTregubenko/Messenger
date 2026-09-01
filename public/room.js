@@ -820,6 +820,11 @@ function setupRoomAvatarUpload() {
 
     changeBtn.addEventListener('click', () => fileInput.click());
 
+    const textBtn = document.getElementById('changeRoomAvatarTextBtn');
+    if (textBtn) {
+        textBtn.addEventListener('click', () => fileInput.click());
+    }
+
     fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;

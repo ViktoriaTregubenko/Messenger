@@ -21,10 +21,16 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const runMigrations = require('./migrate');
 
 
 // 1. СОЗДАНИЕ ПРИЛОЖЕНИЯ И HTTP-СЕРВЕРА
 const app = express();
+runMigrations().then(() => {
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`Сервер запущен на порту ${PORT}`);
+    });
+});
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }

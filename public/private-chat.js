@@ -423,6 +423,7 @@ function initSocket() {
 }
 
 // ОТПРАВКА СООБЩЕНИЯ
+
 async function sendMessage() {
     const input = document.getElementById('messageInput');
     if (!input) return;
@@ -434,6 +435,25 @@ async function sendMessage() {
     if (!socket || !socket.connected) {
         showNotification('Нет соединения с сервером', 'error');
         return;
+    }
+
+    // Если нет ключа собеседника – пробуем получить его ещё раз
+    if (!peerPublicKey) {
+        const fetched = await fetchPeerPublicKey(userId);
+        if (!fetched) {
+            showNotification('Собеседник ещё не настроил шифрование. Попросите его открыть личный чат.', 'warning');
+            return;
+        }
+    }
+
+    // Если нет своих ключей – генерируем
+    if (!keyPair || !keyPair.publicKey) {
+        const publicKeyStr = await getOrCreateKeys();
+        if (!publicKeyStr) {
+            showNotification('Ошибка генерации ключей', 'error');
+            return;
+        }
+        await uploadPublicKey(publicKeyStr);
     }
 
     const localId = 'local_' + Date.now();

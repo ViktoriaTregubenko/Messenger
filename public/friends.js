@@ -85,13 +85,14 @@ async function loadFriends() {
             document.getElementById('requestsCount').textContent = '0';
         }
 
-        if (!socket) {
+       /* if (!socket) {
             socket = io({ auth: { token } });
             socket.on('friend_request_received', () => {
                 const count = parseInt(document.getElementById('requestsCount').textContent) || 0;
                 document.getElementById('requestsCount').textContent = count + 1;
             });
         }
+            */
 
     } catch {
         document.getElementById('friendsList').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--danger);">❌ Ошибка загрузки друзей</div>';
