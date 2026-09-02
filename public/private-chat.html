@@ -82,6 +82,30 @@
     </div>
 </div>
 
+<!-- Модальное окно просмотра профиля пользователя -->
+<div id="userProfileModal" class="modal" style="display:none">
+    <div class="modal-content user-profile-modal">
+        <span class="close-modal">&times;</span>
+        <div class="user-profile-view">
+            <div class="user-profile-header">
+                <img id="viewUserAvatar" src="https://via.placeholder.com/80" alt="Avatar">
+                <div>
+                    <h2 id="viewUserFullName"></h2>
+                    <p class="view-username">@<span id="viewUserUsername"></span></p>
+                    <p class="view-status" id="viewUserStatus"></p>
+                </div>
+            </div>
+            <div class="user-profile-details">
+                <div class="detail-row"><strong>Email:</strong> <span id="viewUserEmail"></span></div>
+                <div class="detail-row"><strong>Дата рождения:</strong> <span id="viewUserBirthDate">Не указана</span></div>
+                <div class="detail-row"><strong>Город:</strong> <span id="viewUserCity">Не указан</span></div>
+                <div class="detail-row"><strong>О себе:</strong> <span id="viewUserBio">Не указано</span></div>
+            </div>
+            <button id="sendMessageToUserBtn" class="primary-btn">Написать сообщение</button>
+        </div>
+    </div>
+</div>
+
     <script src="notifications.js"></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="private-chat.js"></script>

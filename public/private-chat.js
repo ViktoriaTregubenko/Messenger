@@ -320,7 +320,7 @@ function renderMessage(msg) {
 
     return `
         <div class="message ${isOwn ? 'message-own' : ''}" data-message-id="${msg.id}">
-            <img src="${msg.avatar || 'https://via.placeholder.com/35'}" class="message-avatar" alt="avatar" onerror="this.src='https://via.placeholder.com/35'">
+           <img src="${msg.avatar || 'https://via.placeholder.com/35'}" class="message-avatar" alt="avatar" onerror="this.src='https://via.placeholder.com/35'" style="cursor:pointer;" onclick="showUserProfile(${msg.from_user_id})">
             <div class="message-content">
                 <div class="message-sender">${escapeHtml(msg.username || 'Пользователь')}</div>
                 <div class="message-text">${content}</div>

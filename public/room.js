@@ -218,7 +218,7 @@ function renderMessage(msg) {
 
     return `
         <div class="message ${isOwn ? 'message-own' : ''}" data-message-id="${msg.id}">
-            <img src="${msg.avatar || 'https://via.placeholder.com/35'}" class="message-avatar" alt="avatar" onerror="this.src='https://via.placeholder.com/35'">
+            <img src="${msg.avatar || 'https://via.placeholder.com/35'}" class="message-avatar" alt="avatar" onerror="this.src='https://via.placeholder.com/35'" style="cursor:pointer;" onclick="showUserProfile(${msg.from_user_id})">
             <div class="message-content">
                 <div class="message-sender">${escapeHtml(msg.username || 'Пользователь')}</div>
                 <div class="message-text">${content}</div>
@@ -565,7 +565,7 @@ function setupMemberManagement() {
             resultsContainer.innerHTML = users.map(user => `
                 <div style="display:flex; align-items:center; justify-content:space-between; padding:0.3rem 0.5rem; border-bottom:1px solid var(--border);">
                     <div style="display:flex; align-items:center; gap:0.5rem;">
-                        <img src="${user.avatar || 'https://via.placeholder.com/30'}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                        <img src="${m.avatar || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; cursor:pointer;" onclick="showUserProfile(${m.id})">
                         <span>${escapeHtml(user.full_name || user.username)} (@${escapeHtml(user.username)})</span>
                     </div>
                     <button onclick="addMemberToRoom('${user.username}')" class="btn btn-success" style="padding:0.1rem 0.6rem; font-size:0.8rem;">➕</button>

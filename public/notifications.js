@@ -35,6 +35,72 @@ function initNotificationSocket() {
     }
 });
 
+// ПРОСМОТР ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ
+window.showUserProfile = async function(userId) {
+    try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const res = await fetch(`/api/users/${userId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Ошибка загрузки');
+        const user = await res.json();
+
+        document.getElementById('viewUserAvatar').src = user.avatar || 'https://via.placeholder.com/80';
+        document.getElementById('viewUserFullName').textContent = user.full_name || user.username;
+        document.getElementById('viewUserUsername').textContent = user.username;
+        document.getElementById('viewUserEmail').textContent = user.email || 'Не указан';
+        document.getElementById('viewUserBirthDate').textContent = user.birth_date 
+            ? new Date(user.birth_date).toLocaleDateString('ru-RU') 
+            : 'Не указана';
+        document.getElementById('viewUserCity').textContent = user.city || 'Не указан';
+        document.getElementById('viewUserBio').textContent = user.bio || 'Не указано';
+
+        const statusSpan = document.getElementById('viewUserStatus');
+        if (user.status === 'online') {
+            statusSpan.innerHTML = '<span class="status-dot online"></span> Онлайн';
+        } else if (user.status === 'away') {
+            statusSpan.innerHTML = '<span class="status-dot away"></span> Отошёл';
+        } else {
+            statusSpan.innerHTML = '<span class="status-dot offline"></span> Офлайн';
+        }
+
+        // Кнопка "Написать сообщение"
+        const btn = document.getElementById('sendMessageToUserBtn');
+        btn.onclick = () => {
+            document.getElementById('userProfileModal').style.display = 'none';
+            window.location.href = `private-chat.html?userId=${user.id}`;
+        };
+
+        document.getElementById('userProfileModal').style.display = 'flex';
+    } catch (error) {
+        console.error('Ошибка загрузки профиля:', error);
+        showToastNotification('Не удалось загрузить профиль пользователя', 'error');
+    }
+};
+
+// Закрытие модального окна профиля
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('userProfileModal');
+    if (modal) {
+        const closeBtn = modal.querySelector('.close-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            }
+        });
+    }
+});
+
     // ----- ДОБАВЛЕНИЕ В КОМНАТУ -----
     notificationSocket.on('member_added', async (data) => {
         if (!data.room_id) return;
