@@ -1,0 +1,15 @@
+[33md7eca66[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Кликабельные аватарки пользователей
+[33m3178cde[m Обновления
+[33m66ccd56[m Обновления
+[33mca9b27f[m Обновления
+[33mf3a686a[m Исправления: аватарка комнаты, ключи шифрования, счётчик заявок
+[33m92df6ed[m Add express-rate-limit back to dependencies
+[33m8ee329d[m Исправления: загрузка аватара комнаты, уведомления, ключи шифрования
+[33mfeae6d3[m Add auto-migration on server start
+[33mac7b4ee[m Fix API_URL for production
+[33m48029f0[m Remove .env from repository and add to .gitignore
+[33m4382896[m Fix: use DATABASE_URL for PostgreSQL connection
+[33m5386e47[m Remove express-rate-limit to fix deploy
+[33mbd37ca0[m Add express-rate-limit to dependencies
+[33m1a0b339[m Подготовка к деплою
+[33m757c796[m Initial commit

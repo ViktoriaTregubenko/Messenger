@@ -69,9 +69,10 @@ async function loadFriends() {
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                    <button onclick="window.location.href='private-chat.html?userId=${friend.id}'" class="btn btn-primary" style="padding: 0.2rem 0.8rem;">💬</button>
-                    <button onclick="removeFriend(${friend.id})" class="btn btn-danger" style="padding: 0.2rem 0.8rem;">🗑️</button>
-                </div>
+    <button onclick="showUserProfile(${friend.id})" class="view-profile-btn" title="Просмотр профиля">👁️</button>
+    <button onclick="window.location.href='private-chat.html?userId=${friend.id}'" class="btn btn-primary" style="padding: 0.2rem 0.8rem;">💬</button>
+    <button onclick="removeFriend(${friend.id})" class="btn btn-danger" style="padding: 0.2rem 0.8rem;">🗑️</button>
+</div>
             </div>
         `).join('');
 
@@ -192,7 +193,7 @@ window.removeFriend = async function(userId) {
 };
 
 // ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ
-window.showUserProfile = async function(userId) {
+/*window.showUserProfile = async function(userId) {
     try {
         const res = await fetch(`/api/users/${userId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -228,6 +229,7 @@ window.showUserProfile = async function(userId) {
         showNotification('Не удалось загрузить профиль пользователя', 'error');
     }
 };
+*/
 
 // ЗАКРЫТИЕ МОДАЛЬНЫХ ОКОН
 document.querySelector('#userProfileModal .close-modal')?.addEventListener('click', () => {

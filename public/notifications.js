@@ -78,28 +78,7 @@ window.showUserProfile = async function(userId) {
     }
 };
 
-// Закрытие модального окна профиля
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('userProfileModal');
-    if (modal) {
-        const closeBtn = modal.querySelector('.close-modal');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-        }
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.style.display === 'flex') {
-                modal.style.display = 'none';
-            }
-        });
-    }
-});
+
 
     // ----- ДОБАВЛЕНИЕ В КОМНАТУ -----
     notificationSocket.on('member_added', async (data) => {
@@ -239,6 +218,32 @@ function showMessageNotification(message) {
         }
     );
 }
+
+// ===== ЗАКРЫТИЕ МОДАЛЬНОГО ОКНА ПРОФИЛЯ =====
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('userProfileModal');
+    if (modal) {
+        // Кнопка закрытия
+        const closeBtn = modal.querySelector('.close-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+        // Клик на фон
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        // Клавиша Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            }
+        });
+    }
+});
 
 // ===== ЗВУК ДЛЯ УВЕДОМЛЕНИЯ =====
 function playBirdSound() {
