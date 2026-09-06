@@ -37,6 +37,7 @@ function initNotificationSocket() {
 
 // ПРОСМОТР ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ
 window.showUserProfile = async function(userId) {
+   console.log('🔍 showUserProfile вызвана с userId:', userId);
     try {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         const res = await fetch(`/api/users/${userId}`, {
@@ -73,7 +74,7 @@ window.showUserProfile = async function(userId) {
 
         document.getElementById('userProfileModal').style.display = 'flex';
     } catch (error) {
-        console.error('Ошибка загрузки профиля:', error);
+        console.error('❌ Ошибка в showUserProfile:', error);
         showToastNotification('Не удалось загрузить профиль пользователя', 'error');
     }
 };

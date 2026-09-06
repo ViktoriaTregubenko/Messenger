@@ -69,7 +69,6 @@ async function loadFriends() {
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-    <button onclick="showUserProfile(${friend.id})" class="view-profile-btn" title="Просмотр профиля">👁️</button>
     <button onclick="window.location.href='private-chat.html?userId=${friend.id}'" class="btn btn-primary" style="padding: 0.2rem 0.8rem;">💬</button>
     <button onclick="removeFriend(${friend.id})" class="btn btn-danger" style="padding: 0.2rem 0.8rem;">🗑️</button>
 </div>
