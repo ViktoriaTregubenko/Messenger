@@ -37,7 +37,6 @@ function initNotificationSocket() {
 
 // ПРОСМОТР ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ
 window.showUserProfile = async function(userId) {
-   console.log('🔍 showUserProfile вызвана с userId:', userId);
     try {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         const res = await fetch(`/api/users/${userId}`, {
@@ -49,7 +48,6 @@ window.showUserProfile = async function(userId) {
         document.getElementById('viewUserAvatar').src = user.avatar || 'https://via.placeholder.com/80';
         document.getElementById('viewUserFullName').textContent = user.full_name || user.username;
         document.getElementById('viewUserUsername').textContent = user.username;
-        document.getElementById('viewUserEmail').textContent = user.email || 'Не указан';
         document.getElementById('viewUserBirthDate').textContent = user.birth_date 
             ? new Date(user.birth_date).toLocaleDateString('ru-RU') 
             : 'Не указана';
@@ -74,7 +72,6 @@ window.showUserProfile = async function(userId) {
 
         document.getElementById('userProfileModal').style.display = 'flex';
     } catch (error) {
-        console.error('❌ Ошибка в showUserProfile:', error);
         showToastNotification('Не удалось загрузить профиль пользователя', 'error');
     }
 };
