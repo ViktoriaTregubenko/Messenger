@@ -9,12 +9,13 @@ require('dotenv').config();
 const db = require('./db');
 const fs = require('fs');
 const multer = require('multer');
-const crypto = require('crypto');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const runMigrations = require('./migrate');
+const crypto = require('crypto');
+const { sendResetEmail } = require('./mailer');
 
 // 1. СОЗДАНИЕ ПРИЛОЖЕНИЯ И HTTP-СЕРВЕРА
 const app = express();
@@ -53,6 +54,82 @@ app.use('/api/', generalLimiter);
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
+
+// Запрос на восстановление пароля
+app.post('/api/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: 'Email обязателен' });
+
+        const user = await db.getOne(
+            'SELECT id, email FROM users WHERE email = $1',
+            [email]
+        );
+        if (!user) {
+            // Не показываем, существует ли пользователь (безопасность)
+            return res.json({ message: 'Если email зарегистрирован, вы получите письмо' });
+        }
+
+        // Генерация уникального токена
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 3600000);
+
+        await db.execute(
+            'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
+            [user.id, token, expiresAt]
+        );
+
+        const resetUrl = `${process.env.FRONTEND_URL || 'https://ваш-сайт'}/reset-password?token=${token}`;
+        await sendResetEmail(user.email, token, resetUrl);
+
+        res.json({ message: 'Если email зарегистрирован, вы получите письмо' });
+    } catch (error) {
+        console.error('Ошибка восстановления пароля:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Сброс пароля по токену
+app.post('/api/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        if (!token || !newPassword) {
+            return res.status(400).json({ error: 'Токен и пароль обязательны' });
+        }
+        if (newPassword.length < 6) {
+            return res.status(400).json({ error: 'Пароль должен быть минимум 6 символов' });
+        }
+
+        // Проверяем токен
+        const reset = await db.getOne(
+            'SELECT user_id, expires_at FROM password_resets WHERE token = $1',
+            [token]
+        );
+        if (!reset) {
+            return res.status(400).json({ error: 'Неверный или истёкший токен' });
+        }
+        if (new Date() > new Date(reset.expires_at)) {
+            await db.execute('DELETE FROM password_resets WHERE token = $1', [token]);
+            return res.status(400).json({ error: 'Срок действия токена истёк' });
+        }
+
+        // Хешируем новый пароль
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await db.execute(
+            'UPDATE users SET password_hash = $1 WHERE id = $2',
+            [hashedPassword, reset.user_id]
+        );
+
+        // Удаляем использованный токен
+        await db.execute('DELETE FROM password_resets WHERE token = $1', [token]);
+
+        res.json({ message: 'Пароль успешно сброшен' });
+    } catch (error) {
+        console.error('Ошибка сброса пароля:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 // 3. АУТЕНТИФИКАЦИЯ (JWT)
 const JWT_SECRET = process.env.JWT_SECRET || 'Admin123';
