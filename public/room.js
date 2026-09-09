@@ -218,7 +218,7 @@ function renderMessage(msg) {
 
     return `
         <div class="message ${isOwn ? 'message-own' : ''}" data-message-id="${msg.id}">
-            <img src="${msg.avatar || 'https://via.placeholder.com/35'}" class="message-avatar" alt="avatar" onerror="this.src='https://via.placeholder.com/35'" style="cursor:pointer;" onclick="showUserProfile(${msg.from_user_id})">
+            <img src="${getUserAvatar(msg)}" class="message-avatar" alt="avatar"> style="cursor:pointer;" onclick="showUserProfile(${msg.from_user_id})">
             <div class="message-content">
                 <div class="message-sender">${escapeHtml(msg.username || 'Пользователь')}</div>
                 <div class="message-text">${content}</div>
@@ -654,7 +654,7 @@ async function renderMembersList() {
             return `
                 <div style="display:flex; align-items:center; justify-content:space-between; padding:0.5rem; border-bottom:1px solid var(--border);">
                     <div style="display:flex; align-items:center; gap:0.5rem;">
-                        <img src="${m.avatar || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                        <img src="${getUserAvatar(m)}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                         <div>
                             <strong>${escapeHtml(m.full_name || m.username)}</strong>
                             <span style="font-size:0.8rem; color:var(--text-light);">${roleBadge}</span>

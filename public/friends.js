@@ -59,7 +59,7 @@ async function loadFriends() {
         container.innerHTML = friendsList.map(friend => `
             <div class="list-item" data-user-id="${friend.id}">
                 <div class="item-info" onclick="showUserProfile(${friend.id})" style="cursor:pointer; flex:1;">
-                    <img src="${friend.avatar || 'https://via.placeholder.com/50'}" class="item-avatar">
+                    <img src="${getUserAvatar(friend)}" class="item-avatar">
                     <div>
                         <div>
                             <strong>${escapeHtml(friend.full_name || friend.username)}</strong>
@@ -125,7 +125,7 @@ document.getElementById('globalSearchInput')?.addEventListener('input', async fu
             return `
                 <div class="search-result-item" style="display:flex; align-items:center; justify-content:space-between; padding:0.5rem; border-bottom:1px solid var(--border);">
                     <div onclick="showUserProfile(${user.id})" style="flex:1; cursor:pointer; display:flex; align-items:center; gap:0.5rem;">
-                        <img src="${user.avatar || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                        <img src="${getUserAvatar(user)}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                         <div>
                             <strong>${user.full_name || user.username}</strong>
                             <div style="font-size:12px; color:var(--text-light);">@${user.username}</div>

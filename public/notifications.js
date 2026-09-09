@@ -9,12 +9,12 @@ function initNotificationSocket() {
 
     notificationSocket = io({ auth: { token } });
 
-    // ----- ЛИЧНЫЕ СООБЩЕНИЯ -----
+    // ЛИЧНЫЕ СООБЩЕНИЯ
     notificationSocket.on('private_message_encrypted', async (message) => {
         showMessageNotification(message);
     });
 
-    // ----- ЗАЯВКИ В ДРУЗЬЯ -----
+    // ЗАЯВКИ В ДРУЗЬЯ 
     notificationSocket.on('friend_request_received', (data) => {
         const senderName = data.username || 'Пользователь';
         showToastNotification(
@@ -45,7 +45,7 @@ window.showUserProfile = async function(userId) {
         if (!res.ok) throw new Error('Ошибка загрузки');
         const user = await res.json();
 
-        document.getElementById('viewUserAvatar').src = user.avatar || 'https://via.placeholder.com/80';
+        document.getElementById('viewUserAvatar').src = getUserAvatar(user);
         document.getElementById('viewUserFullName').textContent = user.full_name || user.username;
         document.getElementById('viewUserUsername').textContent = user.username;
         document.getElementById('viewUserBirthDate').textContent = user.birth_date 
@@ -78,7 +78,7 @@ window.showUserProfile = async function(userId) {
 
 
 
-    // ----- ДОБАВЛЕНИЕ В КОМНАТУ -----
+    // ДОБАВЛЕНИЕ В КОМНАТУ
     notificationSocket.on('member_added', async (data) => {
         if (!data.room_id) return;
 
@@ -99,7 +99,7 @@ window.showUserProfile = async function(userId) {
         );
     });
 
-    // ----- НОВЫЕ СООБЩЕНИЯ В КОМНАТАХ -----
+    // НОВЫЕ СООБЩЕНИЯ В КОМНАТАХ
     notificationSocket.on('new_message', async (message) => {
         if (!message.to_room_id) return;
 
@@ -123,7 +123,7 @@ window.showUserProfile = async function(userId) {
         );
     });
 
-    // ----- СТАТУСЫ ПОДКЛЮЧЕНИЯ -----
+    // СТАТУСЫ ПОДКЛЮЧЕНИЯ 
     notificationSocket.on('connect', async () => {
         try {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -143,7 +143,7 @@ window.showUserProfile = async function(userId) {
     notificationSocket.on('disconnect', () => {});
 }
 
-// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 
 async function getRoomName(roomId) {
     if (roomNameCache[roomId]) return roomNameCache[roomId];
@@ -197,7 +197,50 @@ function isChatWithUserOpen(userId) {
     return chatUserId && parseInt(chatUserId) === parseInt(userId);
 }
 
-// ===== ПОКАЗ УВЕДОМЛЕНИЯ О ЛИЧНОМ СООБЩЕНИИ =====
+// ГЕНЕРАЦИЯ АВАТАРА ИЗ ИНИЦИАЛОВ
+function getUserAvatar(user) {
+    // Если есть аватар — используем его
+    if (user.avatar && user.avatar.startsWith('data:image')) {
+        return user.avatar;
+    }
+
+    // Получаем инициалы
+    const name = user.full_name || user.username || 'U';
+    const initials = name
+        .split(' ')
+        .map(word => word[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+
+    // Генерируем цвет на основе id 
+    const colors = ['#FF6B9D', '#FFD700', '#6BCB77', '#4D96FF', '#FF6B6B', '#9B59B6', '#1ABC9C'];
+    const colorIndex = (user.id || 0) % colors.length;
+    const color = colors[colorIndex];
+
+    // Создаём canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const ctx = canvas.getContext('2d');
+
+    // Рисуем круг
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(50, 50, 50, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Рисуем инициалы
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 40px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(initials, 50, 50);
+
+    return canvas.toDataURL('image/png');
+}
+
+// ПОКАЗ УВЕДОМЛЕНИЯ О ЛИЧНОМ СООБЩЕНИИ
 function showMessageNotification(message) {
     if (!message.to_user_id) return;
 
@@ -217,7 +260,7 @@ function showMessageNotification(message) {
     );
 }
 
-// ===== ЗАКРЫТИЕ МОДАЛЬНОГО ОКНА ПРОФИЛЯ =====
+// ЗАКРЫТИЕ МОДАЛЬНОГО ОКНА ПРОФИЛЯ
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('userProfileModal');
     if (modal) {
@@ -243,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ===== ЗВУК ДЛЯ УВЕДОМЛЕНИЯ =====
+// ЗВУК ДЛЯ УВЕДОМЛЕНИЯ
 function playBirdSound() {
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -270,7 +313,7 @@ function playBirdSound() {
     } catch (e) {}
 }
 
-// ===== ТОСТ-УВЕДОМЛЕНИЕ =====
+// ТОСТ-УВЕДОМЛЕНИЕ
 function showToastNotification(title, message, type = 'info', onClick = null) {
     playBirdSound();
 
@@ -369,7 +412,7 @@ function closeToast(toast) {
     }, 400);
 }
 
-// ===== СТИЛИ АНИМАЦИИ =====
+// СТИЛИ АНИМАЦИИ
 const toastStyles = document.createElement('style');
 toastStyles.textContent = `
     @keyframes slideInRight {
@@ -396,7 +439,7 @@ toastStyles.textContent = `
 `;
 document.head.appendChild(toastStyles);
 
-// ===== ЗАПУСК =====
+// ЗАПУСК
 document.addEventListener('DOMContentLoaded', () => {
     initNotificationSocket();
 });

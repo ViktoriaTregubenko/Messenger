@@ -239,7 +239,7 @@ function renderChats() {
 
         return `
             <div class="chat-item ${isUnread ? 'has-unread' : ''}" onclick="window.location.href='private-chat.html?userId=${chat.id}'">
-                <img src="${chat.avatar || 'https://via.placeholder.com/50'}" class="chat-avatar" onerror="this.src='https://via.placeholder.com/50'">
+                <img src="${getUserAvatar(chat)}" class="chat-avatar">
                 <div class="chat-details">
                     <div class="chat-name">${nameHtml}</div>
                     <div class="chat-last-message ${isUnread ? 'unread' : ''}">

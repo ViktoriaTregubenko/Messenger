@@ -26,7 +26,7 @@ async function loadDashboard() {
         if (fullNameEl) fullNameEl.textContent = currentUser.full_name || currentUser.username;
         if (usernameEl) usernameEl.textContent = `@${currentUser.username}`;
         if (welcomeNameEl) welcomeNameEl.textContent = currentUser.full_name || currentUser.username;
-        if (avatarEl) avatarEl.src = currentUser.avatar || 'https://via.placeholder.com/80';
+        if (avatarEl) avatarEl.src = getUserAvatar(currentUser);
 
         const friendsRes = await fetch('/api/friends', { headers: { 'Authorization': `Bearer ${token}` } });
         const friends = await friendsRes.json();
