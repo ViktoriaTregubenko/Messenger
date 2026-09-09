@@ -1,0 +1,21 @@
+{
+    "name": "Victory Messenger",
+    "short_name": "Victory",
+    "description": "Безопасный мессенджер",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#FF6B9D",
+    "theme_color": "#FF6B9D",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}
