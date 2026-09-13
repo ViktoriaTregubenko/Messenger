@@ -1126,7 +1126,16 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'messenger_uploads',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm', 'pdf', 'doc', 'docx', 'txt'],
+        allowed_formats: [
+            // Изображения
+            'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp',
+            // Видео
+            'mp4', 'webm', 'mov', 'avi', 'mkv', 'ogg',
+            // Аудио
+            'mp3', 'wav', 'm4a', 'aac', 'flac', 'opus',
+            // Документы
+            'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'
+        ],
         resource_type: 'auto',
     },
 });
